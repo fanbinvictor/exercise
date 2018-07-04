@@ -10,12 +10,11 @@ Vue.component('select-district', {
             // 用来初始化省市区的值，在编辑时会用到
             initValue: {
                 type: Array, // 格式是数组
-                default: () = > ([]), // 默认是个空数组
+                default: () => ([]), // 默认是个空数组
         }
     },
     // 定义了这个组件内的数据
-    data()
-{
+    data() {
     return {
         provinces: addressData['86'], // 省列表
         cities: {}, // 城市列表
@@ -24,13 +23,11 @@ Vue.component('select-district', {
         cityId: '', // 当前选中的市
         districtId: '', // 当前选中的区
     };
-}
-,
+},
 // 定义观察器，对应属性变更时会触发对应的观察器函数
 watch: {
     // 当选择的省发生改变时触发
-    provinceId(newVal)
-    {
+    provinceId(newVal) {
         if (!newVal) {
             this.cities = {};
             this.cityId = '';
@@ -42,11 +39,9 @@ watch: {
         if (!this.cities[this.cityId]) {
             this.cityId = '';
         }
-    }
-,
+    },
     // 当选择的市发生改变时触发
-    cityId(newVal)
-    {
+    cityId(newVal) {
         if (!newVal) {
             this.districts = {};
             this.districtId = '';
@@ -58,27 +53,20 @@ watch: {
         if (!this.districts[this.districtId]) {
             this.districtId = '';
         }
-    }
-,
+    },
     // 当选择的区发生改变时触发
-    districtId()
-    {
+    districtId() {
         // 触发一个名为 change 的 Vue 事件，事件的值就是当前选中的省市区名称，格式为数组
         this.$emit('change', [this.provinces[this.provinceId], this.cities[this.cityId], this.districts[this.districtId]]);
-    }
-,
-}
-,
+    },
+},
 // 组件初始化时会调用这个方法
-created()
-{
+created() {
     this.setFromValue(this.initValue);
-}
-,
+},
 methods: {
     //
-    setFromValue(value)
-    {
+    setFromValue(value) {
         // 过滤掉空值
         value = _.filter(value);
         // 如果数组长度为0，则将省清空（由于我们定义了观察器，会联动触发将城市和地区清空）
@@ -87,9 +75,7 @@ methods: {
             return;
         }
         // 从当前省列表中找到与数组第一个元素同名的项的索引
-        const provinceId = _.findKey(this.provinces, o = > o === value[0]
-    )
-        ;
+        const provinceId = _.findKey(this.provinces, o => o === value[0]);
         // 没找到，清空省的值
         if (!provinceId) {
             this.provinceId = '';
@@ -99,9 +85,7 @@ methods: {
         this.provinceId = provinceId;
         // 由于观察器的作用，这个时候城市列表已经变成了对应省的城市列表
         // 从当前城市列表找到与数组第二个元素同名的项的索引
-        const cityId = _.findKey(addressData[provinceId], o = > o === value[1]
-    )
-        ;
+        const cityId = _.findKey(addressData[provinceId], o => o === value[1]);
         // 没找到，清空城市的值
         if (!cityId) {
             this.cityId = '';
@@ -111,9 +95,7 @@ methods: {
         this.cityId = cityId;
         // 由于观察器的作用，这个时候地区列表已经变成了对应城市的地区列表
         // 从当前地区列表找到与数组第三个元素同名的项的索引
-        const districtId = _.findKey(addressData[cityId], o = > o === value[2]
-    )
-        ;
+        const districtId = _.findKey(addressData[cityId], o => o === value[2]);
         // 没找到，清空地区的值
         if (!districtId) {
             this.districtId = '';
@@ -123,5 +105,4 @@ methods: {
         this.districtId = districtId;
     }
 }
-})
-;
+});
