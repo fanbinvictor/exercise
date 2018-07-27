@@ -24,26 +24,52 @@ class ProductsController extends Controller
             });
         }
         //是否有排序参数
-        if($order=$request->input('order','')){
+        if ($order = $request->input('order', '')) {
             //是否已_asc或_desc结尾
-            if(preg_match('/^(.+)_(asc|desc)$/',$order,$m)){
-              //若果是则是合法的排序
-                if(in_array($m[1],['price','sold_count','rating'])){
-                  $products->orderBy($m[1],$m[2]);
+            if (preg_match('/^(.+)_(asc|desc)$/', $order, $m)) {
+                //若果是则是合法的排序
+                if (in_array($m[1], ['price', 'sold_count', 'rating'])) {
+                    $products->orderBy($m[1], $m[2]);
                 }
             }
         }
-        $products=$products->paginate(16);
-        return view('products.index', ['products' => $products,'filters'  => [
+        $products = $products->paginate(16);
+        return view('products.index', ['products' => $products, 'filters' => [
             'search' => $search,
-            'order'  => $order,
+            'order' => $order,
         ],]);
     }
 
-    public function show(Product $product,Request $request){
-       if(!$product->on_sale){
+    public function show(Product $product, Request $request)
+    {
+        if (!$product->on_sale) {
             throw new InvalidRequestException('商品未上架');
-       }
-        return view('products.show',['product'=>$product]);
+        }
+        $favored = false;
+        // 用户未登录时返回的是 null，已登录时返回的是对应的用户对象
+        if($user = $request->user()) {
+            // 从当前用户已收藏的商品中搜索 id 为当前商品 id 的商品
+            // boolval() 函数用于把值转为布尔值
+            $favored = boolval($user->favoriteProducts()->find($product->id));
+        }
+        return view('products.show', ['product' => $product,'favored'=>$favored]);
+    }
+
+    public function favor(Product $product, Request $request)
+    {
+        $user = $request->user();
+        if ($user->favoriteProducts()->find($product->id)) {
+            return [];
+        }
+        $user->favoriteProducts()->attach($product);
+        return [];
+    }
+
+    public function disfavor(Product $product, Request $request)
+    {
+        $user = $request->user();
+        $user->favoriteProducts()->detach($product);
+
+        return [];
     }
 }
