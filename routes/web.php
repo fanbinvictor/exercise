@@ -29,3 +29,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/email_verification/send', 'EmailVerificationController@send')->name('email_verification.send');
 
 });
+
+//商品
+Route::redirect('/','/products')->name('root');
+Route::get('products','ProductsController@index')->name('products.index');
